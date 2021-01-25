@@ -5,7 +5,7 @@ metadata:
   namespace: {{ .HandlerNamespace }}
 data:
   common-Corefile.tmpl: |
-    . {
+    .:5333 {
         errors
         health :18080
         mdns {{`{{.Cluster.Name}}`}}.{{`{{.Cluster.Domain}}`}} 0 {{`{{.Cluster.Name}}`}} {{`{{.NonVirtualIP}}`}}

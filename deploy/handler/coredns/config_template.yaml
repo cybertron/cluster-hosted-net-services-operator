@@ -30,13 +30,4 @@ data:
             match api.{{`{{.Cluster.Name}}`}}.{{`{{.Cluster.Domain}}`}}
             fallthrough
         }
-        template IN {{`{{ .Cluster.APIVIPRecordType }}`}} {{`{{.Cluster.Name}}`}}.{{`{{.Cluster.Domain}}`}} {
-            match api-int.{{`{{.Cluster.Name}}`}}.{{`{{.Cluster.Domain}}`}}
-            answer "{{`{{"{{ .Name }}"}}`}} 60 in {{`{{"{{ .Type }}"}}`}} {{ .OnPremPlatformAPIServerInternalIP }}"
-            fallthrough
-        }
-        template IN {{`{{ .Cluster.APIVIPEmptyType }}`}} {{`{{.Cluster.Name}}`}}.{{`{{.Cluster.Domain}}`}} {
-            match api-int.{{`{{.Cluster.Name}}`}}.{{`{{.Cluster.Domain}}`}}
-            fallthrough
-        }
     }

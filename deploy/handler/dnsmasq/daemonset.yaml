@@ -1,0 +1,62 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cluster-hosted-dnsmasq-hosts
+  namespace: {{ .HandlerNamespace }}
+  labels:
+    app: cluster-hosted
+    component:  cluster-hosted-dnsmasq-hosts
+spec:
+  selector:
+    matchLabels:
+      name: cluster-hosted-dnsmasq-hosts
+  template:
+    metadata:
+      labels:
+        app: cluster-hosted
+        component: cluster-hosted-dnsmasq-hosts
+        name: cluster-hosted-dnsmasq-hosts
+    spec:
+      priorityClassName: system-node-critical
+      tolerations:
+      - operator: "Exists"
+      hostNetwork: true
+      serviceAccountName: cluster-hosted-handler
+      volumes:
+      - name: resource-dir
+        configMap:
+          name: dnsmasq-hosts-template
+          items:
+          - key: "api-int.host.tmpl"
+            path: "api-int.host.tmpl"
+      - name: conf-dir
+        hostPath:
+          path: "/etc"
+      - name: dbus-dir
+        hostPath:
+          path: "/run/dbus"
+      containers:
+      - name: cluster-hosted-dnsmasq-hosts-monitor
+        securityContext:
+          privileged: true
+        image: {{ .BaremetalRuntimeCfgImage }}
+        command:
+        - dnsmasqmonitor
+        - "/etc/kubernetes/kubeconfig"
+        - "/config/api-int.host.tmpl"
+        - "/etc/api-int.host"
+        - "--api-vip"
+        - "{{ .OnPremPlatformAPIServerInternalIP }}"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - name: resource-dir
+          mountPath: /config
+        - name: conf-dir
+          mountPath: "/etc"
+        - name: dbus-dir
+          mountPath: "/run/dbus"
+        imagePullPolicy: Always

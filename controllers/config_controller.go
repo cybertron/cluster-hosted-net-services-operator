@@ -216,6 +216,11 @@ func (r *ConfigReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
 		return ctrl.Result{}, errors.Wrap(err, "failed applying RBAC")
 	}
 
+	err = r.syncDnsmasqHosts(instance)
+	if err != nil {
+		return ctrl.Result{}, errors.Wrap(err, "failed applying Dnsmasq hosts")
+	}
+
 	err = r.syncKeepalived(instance)
 	if err != nil {
 		return ctrl.Result{}, errors.Wrap(err, "failed applying Keepalived")
@@ -256,6 +261,24 @@ func (r *ConfigReconciler) syncRBAC(instance *clusterhostednetservicesopenshifti
 		return err
 	}
 	return r.renderAndApply(instance, data, "rbac")
+}
+
+func (r *ConfigReconciler) syncDnsmasqHosts(instance *clusterhostednetservicesopenshiftiov1beta1.Config) error {
+	// TODO:  add here code to check if dnsmasq resources already exist
+	data := render.MakeRenderData()
+	data.Data["HandlerNamespace"] = os.Getenv("HANDLER_NAMESPACE")
+	data.Data["OnPremPlatformAPIServerInternalIP"] = onPremPlatformAPIServerInternalIP
+	data.Data["OnPremPlatformIngressIP"] = onPremPlatformIngressIP
+	data.Data["BaremetalRuntimeCfgImage"] = containerImages.BaremetalRuntimecfg
+	data.Data["KeepalivedImage"] = containerImages.KeepalivedIpfailover
+	// TODO(bnemec): We should not use ApiLoadbalance here. We want to migrate
+	// api-int to the external DNS before shutting down haproxy. It takes around
+	// a minute for the api-int change to propagate.
+	if instance.Spec.LoadBalancer.ApiLoadbalance == "Enable" {
+		return r.renderAndApply(instance, data, "dnsmasq-hosts")
+	} else {
+		return r.renderAndApply(instance, data, "dnsmasq-no-api-int")
+	}
 }
 
 func (r *ConfigReconciler) syncKeepalived(instance *clusterhostednetservicesopenshiftiov1beta1.Config) error {

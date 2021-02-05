@@ -29,6 +29,10 @@ COPY deploy/handler/mdns/config_template.yaml   /bindata/cluster-hosted/mdns-con
 COPY deploy/handler/mdns/daemonset.yaml   /bindata/cluster-hosted/mdns-daemonset/
 COPY deploy/handler/coredns/config_template.yaml   /bindata/cluster-hosted/coredns-configmap/
 COPY deploy/handler/coredns/daemonset.yaml   /bindata/cluster-hosted/coredns-daemonset/
+COPY deploy/handler/dnsmasq/daemonset.yaml    /bindata/cluster-hosted/dnsmasq-hosts/
+COPY deploy/handler/dnsmasq/config_template.yaml    /bindata/cluster-hosted/dnsmasq-hosts/
+COPY deploy/handler/dnsmasq/daemonset.yaml    /bindata/cluster-hosted/dnsmasq-no-api-int/
+COPY deploy/handler/dnsmasq/config_template_empty.yaml    /bindata/cluster-hosted/dnsmasq-no-api-int/
 
 LABEL io.openshift.release.operator=true
 

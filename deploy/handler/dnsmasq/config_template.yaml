@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dnsmasq-hosts-template
+  namespace: {{ .HandlerNamespace }}
+data:
+  api-int.host.tmpl: |
+    {{ .OnPremPlatformAPIServerInternalIP }} api-int api-int.{{`{{.Cluster.Name}}`}}.{{`{{.Cluster.Domain}}`}}
